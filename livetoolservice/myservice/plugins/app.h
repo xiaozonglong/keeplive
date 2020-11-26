@@ -13,6 +13,7 @@ public:
     static int TimeoutCount;            //超时次数
     static int ReStartCount;            //已重启次数
     static QString ReStartLastTime;     //最后一次重启时间
+    static bool UIEnable;
 
     static void readConfig();           //读取配置文件,在main函数最开始加载程序载入
     static void writeConfig();          //写入配置文件,在更改配置文件程序关闭时调用

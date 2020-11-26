@@ -9,7 +9,7 @@ bool App::ReStartExplorer = false;
 int App::TimeoutCount = 3;
 int App::ReStartCount = 0;
 QString App::ReStartLastTime = "2019-01-01 00:00:00";
-
+bool App::UIEnable = true;
 void App::readConfig()
 {
     if (!checkConfig()) {
@@ -24,6 +24,7 @@ void App::readConfig()
     App::TimeoutCount = set.value("TimeoutCount", App::TimeoutCount).toInt();
     App::ReStartCount = set.value("ReStartCount", App::ReStartCount).toInt();
     App::ReStartLastTime = set.value("ReStartLastTime", App::ReStartLastTime).toString();
+    App::UIEnable = set.value("UIEnable", App::UIEnable).toBool();
     set.endGroup();
 }
 
@@ -37,6 +38,7 @@ void App::writeConfig()
     set.setValue("TimeoutCount", App::TimeoutCount);
     set.setValue("ReStartCount", App::ReStartCount);
     set.setValue("ReStartLastTime", App::ReStartLastTime);
+    set.setValue("UIEnable", App::UIEnable);
     set.endGroup();
 }
 

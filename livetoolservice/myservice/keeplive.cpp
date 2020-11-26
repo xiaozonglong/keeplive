@@ -91,6 +91,7 @@ void KeepLive::initService()
         kvs.insert("ReStartCount",App::ReStartCount);
         kvs.insert("ReStartLastTime",App::ReStartLastTime);
         kvs.insert("ReStartExplorer",App::ReStartExplorer);
+        kvs.insert("UIEnable",App::UIEnable);
         kvs.insert("applicationDirPath",qApp->applicationDirPath());
 
 
@@ -209,10 +210,11 @@ void KeepLive::killOther()
 void KeepLive::startApp()
 {
 
+    bool uienable = App::UIEnable;
     QString appname = QString("\"%1/%2.exe\"").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
     if(/* DISABLES CODE */ (0)){
         runCommand(appname);
-    }else if(/* DISABLES CODE */ (0)){//启动不带UI
+    }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
         auto ret = QProcess::startDetached(appname);
         qDebug()<<"QProcess::startDetached "<<appname<<ret;
     }else//启动带UI
