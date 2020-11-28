@@ -36,6 +36,7 @@ HEADERS     += \
 
 OTHER_FILES += \
         $$PWD/README.txt \
+        $$PWD/../README.md \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
