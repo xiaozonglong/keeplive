@@ -1,15 +1,20 @@
-﻿#include "app.h"
+﻿#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+#include "app.h"
 #include "qsettings.h"
 #include "qfile.h"
 
-QString App::ConfigFile = "config.ini";
+QString App::ConfigFile ="";
 QString App::TargetAppName = "livedemo";
 quint16 App::TargetAppPort = 60001;
 bool App::ReStartExplorer = false;
-int App::TimeoutCount = 3;
+int App::TimeoutCount = 7;
 int App::ReStartCount = 0;
-QString App::ReStartLastTime = "2019-01-01 00:00:00";
+int App::TimerHeartInterval = 5000;
+QString App::ReStartLastTime = "";
 bool App::UIEnable = true;
+bool App::DestoryApp = true;
 void App::readConfig()
 {
     if (!checkConfig()) {
@@ -22,9 +27,11 @@ void App::readConfig()
     App::TargetAppPort = set.value("TargetAppPort", App::TargetAppPort).toInt();
     App::ReStartExplorer = set.value("ReStartExplorer", App::ReStartExplorer).toBool();
     App::TimeoutCount = set.value("TimeoutCount", App::TimeoutCount).toInt();
+    App::TimerHeartInterval = set.value("TimerHeartInterval", App::TimerHeartInterval).toInt();
     App::ReStartCount = set.value("ReStartCount", App::ReStartCount).toInt();
     App::ReStartLastTime = set.value("ReStartLastTime", App::ReStartLastTime).toString();
     App::UIEnable = set.value("UIEnable", App::UIEnable).toBool();
+    App::DestoryApp = set.value("DestoryApp", App::DestoryApp).toBool();
     set.endGroup();
 }
 
@@ -36,9 +43,11 @@ void App::writeConfig()
     set.setValue("TargetAppPort", App::TargetAppPort);
     set.setValue("ReStartExplorer", App::ReStartExplorer);
     set.setValue("TimeoutCount", App::TimeoutCount);
+    set.setValue("TimerHeartInterval", App::TimerHeartInterval);
     set.setValue("ReStartCount", App::ReStartCount);
     set.setValue("ReStartLastTime", App::ReStartLastTime);
     set.setValue("UIEnable", App::UIEnable);
+    set.setValue("DestoryApp", App::DestoryApp);
     set.endGroup();
 }
 

@@ -50,16 +50,18 @@ void customMessageHandler(  QtMsgType type,  const char *msg)
         txt = QString("Fatal: %1").arg(msg);
         abort();
     }
-    QFile outFile("debuglog.txt");
-    outFile.open(QIODevice::WriteOnly | QIODevice::Append|QIODevice::Text);
-    QTextStream ts(&outFile);
-    ts << txt << endl;
-    outFile.close();
+
 
     //输出到控制台
     QDateTime now = QDateTime::currentDateTime();
     QTextCodec *codec = QTextCodec::codecForName("GBK");
-    cout << now.toString("hh:mm:ss.zzz").toStdString() << " "<< codec->fromUnicode(txt).data()<<endl;
+    cout << now.toString("yyyy-MM-dd hh:mm:ss.zzz").toStdString() << " "<< codec->fromUnicode(txt).data()<<endl;
+
+    QFile outFile(QCoreApplication::applicationName()+"_debuglog.txt");
+    outFile.open(QIODevice::WriteOnly | QIODevice::Append|QIODevice::Text);
+    QTextStream ts(&outFile);
+    ts <<now.toString("yyyy-MM-dd hh:mm:ss.zzz") << " " << txt << endl;
+    outFile.close();
 }
 bool setCodeVersion(int argc, char *argv[])
 {

@@ -24,13 +24,22 @@ public:
     QUdpSocket *_udp = nullptr;        //UDP通信对象
     int count = 0;              //计数
     bool ok = false;                //是否正常
+
     void pause();
     void resume();
+private:
+    uint _packetID = 0; //当前发送包ID
+    bool _keeplive = true;
+    QByteArray send_heart();
+    QByteArray send_cmdResponse(QVariantMap recvmap);
+    static bool isExistProcess(QString name);
+Q_SIGNALS:
+    void serviceCmd(QString cmd,bool enable);
 private slots:
     void killApp();
     void killOther();
     void startApp();
-    bool isExistProcess(QString name);
+
     void runCommand(QString cmd);
 };
 

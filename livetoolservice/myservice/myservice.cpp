@@ -13,9 +13,9 @@
 */
 
 MyService::MyService(int argc, char **argv)
-    : QtService<QtSingleCoreApplication>(argc, argv, "KeepAliveService")
+    : QtService<QtSingleCoreApplication>(argc, argv, "KeepLiveService")
 {
-    setServiceDescription("龙创公司App KeepAlive保证应用长期运行");
+    setServiceDescription(QString("龙创公司App %1保证应用长期运行").arg(serviceName()));
     setStartupType(QtServiceController::StartupType::AutoStartup);
     setServiceFlags(QtServiceBase::CanBeSuspended);
 
@@ -24,7 +24,7 @@ MyService::MyService(int argc, char **argv)
 
 MyService::~MyService()
 {
-    //    qDebug()<<"~MyService()";
+//    qDebug()<<"~KeepLiveService()";
 }
 
 void MyService::start()
@@ -35,16 +35,32 @@ void MyService::start()
     if(_live == nullptr)
     {
         _live = new KeepLive(nullptr);
+        QObject::connect(_live,&KeepLive::serviceCmd,[=](QString cmd,bool enable){
+            if(cmd == "start")
+            {
+                if(enable)
+                {
+                    start();
+                }else
+                {
+                    stop();
+                }
+            }
+            else if(cmd == "pause")
+            {
+                if(enable)
+                {
+                    pause();
+                }else
+                {
+                    resume();
+                }
+            }
+        });
+
+
     }
-    qDebug()<<"stop()";
-
-    //    try {
-
-    //    }
-    //    catch(...){
-    //        qDebug() << "MyDaemon exit!!!";
-    //        app->quit();
-    //    }
+    qDebug()<<"start()";
 }
 
 void MyService::stop()

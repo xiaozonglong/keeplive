@@ -12,7 +12,7 @@ CONFIG -= app_bundle
 DEFINES += QT_DEPRECATED_WARNINGS
 
 
-TARGET      = KeepAliveService
+TARGET      = KeepLiveService
 TEMPLATE    = app
 MOC_DIR     = temp/moc
 RCC_DIR     = temp/rcc

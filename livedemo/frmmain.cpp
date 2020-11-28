@@ -1,4 +1,7 @@
-﻿#include "frmmain.h"
+﻿#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+#include "frmmain.h"
 #include "ui_frmmain.h"
 
 #include <QDebug>

@@ -1,5 +1,9 @@
-﻿#include "keeplive.h"
+﻿#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+#include "keeplive.h"
 #include <QJsonDocument>
+#include <QNetworkDatagram>
 #include <QDir>
 #include "process_loader.h"
 #include "ISysWin.h"
@@ -14,10 +18,12 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
         QDir::setCurrent(applicationDirPath);
     }
 
-    App::ConfigFile = applicationDirPath + "/config.ini";
+    QString applicationName = QCoreApplication::applicationName();
+    App::ConfigFile = applicationDirPath + "/"+applicationName+"_config.ini";
+    App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     App::readConfig();
 
-    QString applicationName = QCoreApplication::applicationName();
+
     qDebug()<<QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")<<endl<<"-------------------------------服务启动中------------------------------------------"<<endl
            <<"ServiceName()-->"<<applicationName<<endl
           <<"LiveProcessName()-->"<<App::TargetAppName<<endl
@@ -26,11 +32,18 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 
     initLock();
     initService();
+    startApp();
 }
 
 KeepLive::~KeepLive()
 {
+
     killApp();
+
+    if(_udp)
+    {
+        _udp->deleteLater();
+    }
 }
 
 void KeepLive::initLock()
@@ -63,6 +76,117 @@ void KeepLive::initLock()
 
 }
 
+QByteArray KeepLive::send_heart()
+{
+    QByteArray retstr;
+    if(_packetID == 0)
+    {
+        _packetID = QDateTime::currentDateTime().toTime_t();
+    }
+    QVariantMap mainkvs;
+    {
+        {
+
+            QVariantMap kvs;
+            kvs.insert("object","keeplive");
+            kvs.insert("value",_keeplive);
+            kvs.insert("DateTime",QDateTime::currentDateTime());
+            kvs.insert("TargetAppPort",App::TargetAppPort);
+            kvs.insert("TargetAppName",App::TargetAppName);
+            kvs.insert("ConfigFile",App::ConfigFile);
+
+            kvs.insert("TimeoutCount",App::TimeoutCount);
+            kvs.insert("ReStartCount",App::ReStartCount);
+            kvs.insert("ReStartLastTime",App::ReStartLastTime);
+            kvs.insert("ReStartExplorer",App::ReStartExplorer);
+            kvs.insert("UIEnable",App::UIEnable);
+            kvs.insert("DestoryApp",App::DestoryApp);
+            kvs.insert("TimerHeartInterval",App::TimerHeartInterval);
+            kvs.insert("applicationDirPath",qApp->applicationDirPath());
+
+
+            kvs.insert("count",count);
+            kvs.insert("ok",ok);
+
+            mainkvs.insert("payload",kvs);
+        }
+
+    }
+    mainkvs.insert("messagetype","update");
+
+
+
+    {
+
+        mainkvs.insert("packetID",_packetID);
+        mainkvs.insert("soft_version","1.0");
+
+
+        QJsonDocument doc=QJsonDocument::fromVariant(QVariant(mainkvs));
+        auto jba = QJsonDocument(doc).toJson(QJsonDocument::Indented);
+        retstr = jba;
+
+    }
+    return retstr;
+}
+
+QByteArray KeepLive::send_cmdResponse(QVariantMap recvmap)
+{
+    QByteArray retstr;
+    {
+        auto packetID = recvmap.value("packetID").toUInt();
+        auto object = recvmap.value("object").toString();
+        auto payloadmap = recvmap.value("payload").toMap();
+        if(object == "service_status" )
+        {
+            auto command = recvmap.value("command").toString();
+            if(command == "write")
+            {
+                if(!payloadmap.contains("object"))return retstr;
+
+
+                //消息回复
+                QVariantMap mainkvs;
+                mainkvs.insert("packetID",packetID);
+                mainkvs.insert("soft_version","1.0");
+                mainkvs.insert("messagetype","response");
+
+                {
+                    QVariantMap kvs;
+                    kvs.insert("object",payloadmap.value("object"));
+                    kvs.insert("value",payloadmap.value("value"));
+                    mainkvs.insert("payload",kvs);
+                }
+                QJsonDocument doc=QJsonDocument::fromVariant(QVariant(mainkvs));
+                auto jba = QJsonDocument(doc).toJson(QJsonDocument::Indented);
+
+
+                retstr = jba;
+
+                //发送信号
+                if(payloadmap.contains("object"))
+                {
+                    auto payloadobject = payloadmap.value("object").toString();
+                    auto payloadobjectvalue = payloadmap.value("value").toBool();
+
+                    emit serviceCmd(payloadobject,payloadobjectvalue);
+                }
+                else
+                {
+
+                }
+
+            }
+        }else
+        {
+            qWarning() <<"解析数据有错误,未识别的相应的字段 object"<<object;
+        }
+
+
+    }
+    return retstr;
+}
+
 void KeepLive::initService()
 {
     //每秒钟定时询问心跳
@@ -71,7 +195,8 @@ void KeepLive::initService()
         qDebug()<<"QTimer::destroyed";
         _timerHeart = nullptr;
     });
-    _timerHeart->setInterval(2000);
+    auto TimerHeartInterval = App::TimerHeartInterval;
+    _timerHeart->setInterval(TimerHeartInterval);
     connect(_timerHeart, &QTimer::timeout, this, [=](){
 
         if(_udp == nullptr)
@@ -80,33 +205,12 @@ void KeepLive::initService()
             return;
         }
 
-        QVariantMap kvs;
-        kvs.insert("timerHeart",_timerHeart->interval());
-        kvs.insert("DateTime",QDateTime::currentDateTime());
-        kvs.insert("TargetAppPort",App::TargetAppPort);
-        kvs.insert("TargetAppName",App::TargetAppName);
-        kvs.insert("ConfigFile",App::ConfigFile);
 
-        kvs.insert("TimeoutCount",App::TimeoutCount);
-        kvs.insert("ReStartCount",App::ReStartCount);
-        kvs.insert("ReStartLastTime",App::ReStartLastTime);
-        kvs.insert("ReStartExplorer",App::ReStartExplorer);
-        kvs.insert("UIEnable",App::UIEnable);
-        kvs.insert("applicationDirPath",qApp->applicationDirPath());
+        auto jba =  send_heart();
+        if(!jba.isEmpty()){
+            auto sendsize = _udp->writeDatagram(jba, QHostAddress::LocalHost, App::TargetAppPort);
+        }
 
-
-        kvs.insert("count",count);
-        kvs.insert("ok",ok);
-        QJsonDocument doc=QJsonDocument::fromVariant(QVariant(kvs));
-        auto jba = QJsonDocument(doc).toJson(QJsonDocument::Indented);
-
-
-
-
-        auto sendsize = _udp->writeDatagram(jba, QHostAddress::LocalHost, App::TargetAppPort);
-
-        Q_UNUSED(sendsize)
-        //        qDebug()<<sendsize<<jba;
         //判断当前是否没有回复
         if (!ok) {
             count++;
@@ -115,17 +219,24 @@ void KeepLive::initService()
             ok = false;
         }
 
-        //如果超过规定次数没有收到心跳回复,则超时重启
-        if (count >= App::TimeoutCount) {
-            _timerHeart->stop();
+        if(_keeplive == true)
+        {
+            //如果超过规定次数没有收到心跳回复,则超时重启
+            if (count >= App::TimeoutCount) {
+                _timerHeart->stop();
+                if(_packetID != 0)
+                {
+                    qWarning()<<"没有响应数据包 packetID="<<_packetID<<count<<App::TimeoutCount;
+                    _packetID = 0;
+                }
 
-            killApp();
+                killApp();
 
-
-            //killother
-            QTimer::singleShot(1000 , this, SLOT(killOther()));
-            QTimer::singleShot(3000 , this, SLOT(startApp()));
-            //            QTimer::singleShot(4000 , this, SLOT(startExplorer()));
+                //killother
+                QTimer::singleShot(1000 , this, SLOT(killOther()));
+                QTimer::singleShot(3000 , this, SLOT(startApp()));
+                //            QTimer::singleShot(4000 , this, SLOT(startExplorer()));
+            }
         }
     });
 
@@ -139,18 +250,58 @@ void KeepLive::initService()
 
 
         connect(_udp, &QUdpSocket::readyRead, this, [=](){
-            QByteArray tempData;
-            do {
-                tempData.resize((int)_udp->pendingDatagramSize());
-                _udp->readDatagram(tempData.data(), tempData.size());
-                //没有具体分析类容，目前全部通过
-                if(!tempData.isEmpty())
+
+            while(_udp->hasPendingDatagrams())//拥有等待的数据报
+            {
+
+                QNetworkDatagram datagram = _udp->receiveDatagram();
+
+                //        _ser->readDatagram(datagramba.data(), datagramba.size(),
+                //                           &senderAddress, &senderPort);
+                QByteArray datagramba = datagram.data();
+                auto senderAddress = datagram.senderAddress();
+                auto senderPort = datagram.senderPort();
+
+                if (!datagramba.isEmpty())
                 {
-                    count = 0;
-                    ok = true;
+                    QJsonDocument recvdata = QJsonDocument::fromJson(datagramba);
+
+                    if(recvdata.isNull())break;
+
+                    auto recvmap = recvdata.toVariant().toMap();
+
+                    auto messagetype = recvmap.value("messagetype").toString();
+
+                    if(messagetype == "response")
+                    {
+                        auto packetID = recvmap.value("packetID").toUInt();
+
+                        if(packetID == _packetID)
+                        {
+                            _packetID = 0;
+                            count = 0;
+                            ok = true;
+                        }else
+                        {
+                            qWarning() <<"回复数据有错误,相应的字段参数不符 packetID"<<packetID<<_packetID;
+                        }
+                    }else if(messagetype == "update")
+                    {
+                        auto jba = send_cmdResponse(recvmap);
+                        if(!jba.isEmpty())
+                        {
+                            auto sendsize = _udp->writeDatagram(jba, senderAddress, senderPort);
+                        }
+
+                    }
+                    else
+                    {
+                        qWarning() <<"回复数据有错误,未识别的相应的字段 messagetype"<<messagetype;
+                    }
+
                 }
 
-            } while (_udp->hasPendingDatagrams());
+            }
         });
     }
 
@@ -166,42 +317,60 @@ void KeepLive::initService()
 
 void KeepLive::pause()
 {
+#if 1
+    _keeplive = false;
+#else
     if(_timerHeart != nullptr)
     {
         _timerHeart->stop();
     }
+#endif
 }
 
 void KeepLive::resume()
 {
+#if 1
+    _keeplive = true;
+#else
     if(_timerHeart != nullptr)
     {
         _timerHeart->start();
     }
+#endif
 }
 void KeepLive::killApp()
 {  
-    if(isExistProcess(App::TargetAppName + ".exe"))
+    bool DestoryApp = App::DestoryApp;
+    if(DestoryApp == true)
     {
-        QString cmd = QString("taskkill /im %1.exe /f").arg(App::TargetAppName);
-        runCommand(cmd);
+        QString tappname = App::TargetAppName + ".exe";
+        if(isExistProcess(tappname))
+        {
+            QString cmd = QString("taskkill /im %1 /f").arg(tappname);
+            runCommand(cmd);
+        }
     }
 }
 
 void KeepLive::killOther()
 {
-    if(isExistProcess("WerFault.exe"))
     {
-        QString cmd = QString("taskkill /im %1.exe /f").arg("WerFault");
-        runCommand(cmd);
+        QString tappname = QString("WerFault")+ ".exe";
+        if(isExistProcess(tappname))
+        {
+            QString cmd = QString("taskkill /im %1 /f").arg(tappname);
+            runCommand(cmd);
+        }
     }
+
 
 
     //重建缓存,彻底清除托盘图标
     if (App::ReStartExplorer) {
-        if(isExistProcess("explorer.exe"))
+         QString tappname = QString("explorer")+ ".exe";
+        if(isExistProcess(tappname))
         {
-            QString cmd = QString("taskkill /f /im explorer.exe");
+            QString cmd = QString("taskkill /f /im %1").arg(tappname);
             runCommand(cmd);
         }
     }
@@ -211,30 +380,37 @@ void KeepLive::startApp()
 {
 
     bool uienable = App::UIEnable;
-    QString appname = QString("\"%1/%2.exe\"").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
-    if(/* DISABLES CODE */ (0)){
-        runCommand(appname);
-    }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
-        auto ret = QProcess::startDetached(appname);
-        qDebug()<<"QProcess::startDetached "<<appname<<ret;
-    }else//启动带UI
+    QString appname = QString("%1/%2.exe").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
+
+
+    if(QFile::exists (appname))
     {
+        QString appname1 = QString("\"%1\"").arg(appname);
+        if(/* DISABLES CODE */ (0)){
+            runCommand(appname1);
+        }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
+            auto ret = QProcess::startDetached(appname1);
+            qDebug()<<"QProcess::startDetached "<<appname<<ret;
+        }else//启动带UI
+        {
 #ifdef Q_OS_WIN
-        //    std::wstring command = L"notepad.exe";
-        std::wstring command = appname.toStdWString();
-        if (ProcessLoader::loadWindowsApplication(command) == false) {
-            qWarning() <<appname<< "Failed to launch " << command.c_str()<<"请在服务中启动程序";
-        }
+            //    std::wstring command = L"notepad.exe";
+            std::wstring command = appname1.toStdWString();
+            if (ProcessLoader::loadWindowsApplication(command) == false) {
+                qWarning() <<appname<< "Failed to launch " << command.c_str()<<"请在服务中启动程序";
+            }
 #endif
+        }
+        App::ReStartCount++;
+        App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        App::writeConfig();
+    }else{
+        qWarning() <<appname<<"不存在 Failed to launch ";
     }
+
     count = 0;
     ok = true;
     _timerHeart->start();
-
-    App::ReStartCount++;
-    App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    App::writeConfig();
-
 }
 
 bool KeepLive::isExistProcess(QString name)

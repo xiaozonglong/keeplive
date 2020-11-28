@@ -18,8 +18,10 @@ DESTDIR     = $$PWD/../bin
 CONFIG      += warn_off
 
 SOURCES     += main.cpp
-SOURCES     += frmmain.cpp applive.cpp
-HEADERS     += frmmain.h applive.h
+SOURCES     += frmmain.cpp
+HEADERS     += frmmain.h
 FORMS       += frmmain.ui
+
+include($$PWD/appkeeplive/appkeeplive.pri)
 
 include($$PWD/../livetoolservice/qt-solutions/qtlockedfile/src/qtlockedfile.pri)
