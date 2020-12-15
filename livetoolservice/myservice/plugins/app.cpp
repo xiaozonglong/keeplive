@@ -6,8 +6,8 @@
 #include "qfile.h"
 
 QString App::ConfigFile ="";
-QString App::TargetAppName = "livedemo";
-quint16 App::TargetAppPort = 60001;
+QString App::TargetAppName = "";
+quint16 App::TargetAppPort = 0;
 bool App::ReStartExplorer = false;
 int App::TimeoutCount = 7;
 int App::ReStartCount = 0;
@@ -15,6 +15,7 @@ int App::TimerHeartInterval = 5000;
 QString App::ReStartLastTime = "";
 bool App::UIEnable = true;
 bool App::DestoryApp = true;
+bool App::ExitDestoryApp = true;
 void App::readConfig()
 {
     if (!checkConfig()) {
@@ -32,6 +33,7 @@ void App::readConfig()
     App::ReStartLastTime = set.value("ReStartLastTime", App::ReStartLastTime).toString();
     App::UIEnable = set.value("UIEnable", App::UIEnable).toBool();
     App::DestoryApp = set.value("DestoryApp", App::DestoryApp).toBool();
+    App::ExitDestoryApp = set.value("ExitDestoryApp", App::ExitDestoryApp).toBool();
     set.endGroup();
 }
 
@@ -48,6 +50,7 @@ void App::writeConfig()
     set.setValue("ReStartLastTime", App::ReStartLastTime);
     set.setValue("UIEnable", App::UIEnable);
     set.setValue("DestoryApp", App::DestoryApp);
+    set.setValue("ExitDestoryApp", App::ExitDestoryApp);
     set.endGroup();
 }
 

@@ -15,7 +15,8 @@ public:
     static int ReStartCount;            //已重启次数
     static QString ReStartLastTime;     //最后一次重启时间
     static bool UIEnable;               //使能带界面的应用
-    static bool DestoryApp;             //停止后，销毁守护应用
+    static bool DestoryApp;             //销毁守护应用
+    static bool ExitDestoryApp;             //停止后，销毁守护应用
 
     static void readConfig();           //读取配置文件,在main函数最开始加载程序载入
     static void writeConfig();          //写入配置文件,在更改配置文件程序关闭时调用

@@ -7,28 +7,48 @@
 #include <QDir>
 #include "process_loader.h"
 #include "ISysWin.h"
+QFileInfoList KeepLive::scanFolderFile(QString path)
+{
+    //====需要查找的路径
+    QDir fileDir(path);
 
+    fileDir.setFilter(QDir::Files); //===设置过滤配置,接受文件
+
+    QFileInfoList fileInfoList = fileDir.entryInfoList();
+    return fileInfoList;
+}
+QStringList KeepLive::scanFolder(QString path,QString filter)
+{
+    QFileInfoList fileInfoList = scanFolderFile(path);
+
+    QStringList fileList;
+
+    foreach (auto info , fileInfoList) {
+        //====如果需要筛选指定文件可以在这里添加判断
+
+        if(!filter.isEmpty())
+        {
+            QString suffix = info.suffix();
+            if(suffix == filter)
+            {
+                QString baseName = info.baseName();
+
+                fileList<<baseName;
+            }
+        }else
+        {
+            QString fileName = info.fileName();
+
+            fileList<<fileName;
+        }
+
+
+    }
+    return fileList;
+}
 KeepLive::KeepLive(QObject *parent):QObject(parent)
 {
-    QString applicationDirPath = qApp->applicationDirPath();
-    QString dirPath = QDir::currentPath();
-
-    if(applicationDirPath != dirPath)
-    {
-        QDir::setCurrent(applicationDirPath);
-    }
-
-    QString applicationName = QCoreApplication::applicationName();
-    App::ConfigFile = applicationDirPath + "/"+applicationName+"_config.ini";
-    App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    App::readConfig();
-
-
-    qDebug()<<QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")<<endl<<"-------------------------------服务启动中------------------------------------------"<<endl
-           <<"ServiceName()-->"<<applicationName<<endl
-          <<"LiveProcessName()-->"<<App::TargetAppName<<endl
-         <<"applicationDirPath()-->"<<applicationDirPath<<endl
-           ;
+    initVar();
 
     initLock();
     initService();
@@ -38,7 +58,11 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 KeepLive::~KeepLive()
 {
 
-    killApp();
+    bool ExitDestoryApp = App::ExitDestoryApp;
+    if(ExitDestoryApp == true)
+    {
+        killApp();
+    }
 
     if(_udp)
     {
@@ -46,6 +70,58 @@ KeepLive::~KeepLive()
     }
 }
 
+void KeepLive::initVar()
+{
+    QString applicationDirPath = qApp->applicationDirPath();
+    QString dirPath = QDir::currentPath();
+
+    if(applicationDirPath != dirPath)
+    {
+        QDir::setCurrent(applicationDirPath);
+    }
+
+    //预加载自身配置
+    QString applicationName = QCoreApplication::applicationName();
+    App::ConfigFile = applicationDirPath + "/"+applicationName+"_config.ini";
+    App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    App::TargetAppPort = 60001;
+    App::TimeoutCount = 7;
+    App::ReStartExplorer = false;
+    App::ReStartCount = 0;
+    App::TimerHeartInterval = 5000;
+    App::UIEnable = true;
+    App::DestoryApp = true;
+    App::ExitDestoryApp = true;
+    App::readConfig();
+
+    //默认扫描当前目录下的守护exe
+    if(App::TargetAppName.isEmpty())
+    {
+        QStringList flist = scanFolder("./","exe");
+        {
+            foreach (auto appfile, flist) {
+                if(appfile == applicationName)continue;
+                App::TargetAppName =appfile;
+                break;
+            }
+        }
+    }
+    //扫描不到，默认守护livedemo.exe
+    if(App::TargetAppName.isEmpty())
+    {
+        App::TargetAppName = "livedemo";
+    }
+
+    qDebug()<<QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")<<endl<<"-------------------------------服务启动中------------------------------------------"<<endl
+           <<"ServiceName()-->"<<applicationName<<endl
+          <<"LiveProcessName()-->"<<App::TargetAppName<<endl
+         <<"applicationDirPath()-->"<<applicationDirPath<<endl
+           ;
+
+}
+/*
+ * APP锁功能，会在本地生产.lock文件
+*/
 void KeepLive::initLock()
 {
     QString applicationName = QCoreApplication::applicationName();
@@ -367,7 +443,7 @@ void KeepLive::killOther()
 
     //重建缓存,彻底清除托盘图标
     if (App::ReStartExplorer) {
-         QString tappname = QString("explorer")+ ".exe";
+        QString tappname = QString("explorer")+ ".exe";
         if(isExistProcess(tappname))
         {
             QString cmd = QString("taskkill /f /im %1").arg(tappname);
@@ -397,7 +473,7 @@ void KeepLive::startApp()
             //    std::wstring command = L"notepad.exe";
             std::wstring command = appname1.toStdWString();
             if (ProcessLoader::loadWindowsApplication(command) == false) {
-                qWarning() <<appname<< "Failed to launch " << command.c_str()<<"请在服务中启动程序";
+                qWarning() <<appname<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
             }
 #endif
         }

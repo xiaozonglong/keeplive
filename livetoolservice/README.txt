@@ -1,4 +1,4 @@
-In TestQtService, a Windows service can be installed, uninstalled, start, paused, or stopped. 
+﻿In TestQtService, a Windows service can be installed, uninstalled, start, paused, or stopped. 
 In this service, PluginOne's signal is connected to PluginTwo's slot. 
 
 How to handle the service? 
@@ -8,6 +8,7 @@ How to handle the service?
 -t stop/terminate
 -p pause
 -h help
+-e 普通运行 为了Debug方便
 
 In the folder "qtservice", we use the 3rd party library/source qtsolution/qtservice. 
 You can refer to qtsolution here: https://github.com/qtproject/qt-solutions

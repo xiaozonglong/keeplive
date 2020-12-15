@@ -9,7 +9,7 @@
 #include <QDateTime>
 #include <QCoreApplication>
 #include <QLockFile>
-
+#include <QFileInfoList>
 class KeepLive:public QObject
 {
     Q_OBJECT
@@ -17,6 +17,7 @@ class KeepLive:public QObject
 public:
     KeepLive(QObject *parent = nullptr);
     ~KeepLive();
+    void initVar();
     void initLock();
     void initService();
 
@@ -33,6 +34,8 @@ private:
     QByteArray send_heart();
     QByteArray send_cmdResponse(QVariantMap recvmap);
     static bool isExistProcess(QString name);
+    static QStringList scanFolder(QString path, QString filter);
+    static QFileInfoList scanFolderFile(QString path);
 Q_SIGNALS:
     void serviceCmd(QString cmd,bool enable);
 private slots:
