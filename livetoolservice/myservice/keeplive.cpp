@@ -6,7 +6,15 @@
 #include <QNetworkDatagram>
 #include <QDir>
 #include "process_loader.h"
+#ifdef Q_OS_LINUX
+#include "isyslinux.h"
+#else
 #include "ISysWin.h"
+<<<<<<< HEAD
+#endif
+
+=======
+>>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
 QFileInfoList KeepLive::scanFolderFile(QString path)
 {
     //====需要查找的路径
@@ -38,11 +46,19 @@ QStringList KeepLive::scanFolder(QString path,QString filter)
         }else
         {
             QString fileName = info.fileName();
+<<<<<<< HEAD
 
             fileList<<fileName;
         }
 
 
+=======
+
+            fileList<<fileName;
+        }
+
+
+>>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
     }
     return fileList;
 }
@@ -50,7 +66,11 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 {
     initVar();
 
+<<<<<<< HEAD
+    if(0)initLock();
+=======
     initLock();
+>>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
     initService();
     startApp();
 }
@@ -422,8 +442,12 @@ void KeepLive::killApp()
         QString tappname = App::TargetAppName + ".exe";
         if(isExistProcess(tappname))
         {
+#ifdef Q_OS_LINUX
+            ISysLinux::killAll(tappname);
+#else
             QString cmd = QString("taskkill /im %1 /f").arg(tappname);
             runCommand(cmd);
+#endif
         }
     }
 }
@@ -475,6 +499,9 @@ void KeepLive::startApp()
             if (ProcessLoader::loadWindowsApplication(command) == false) {
                 qWarning() <<appname<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
             }
+#else
+            auto ret = QProcess::startDetached(appname1);
+            qDebug()<<"QProcess::startDetached "<<appname<<ret;
 #endif
         }
         App::ReStartCount++;
@@ -496,6 +523,8 @@ bool KeepLive::isExistProcess(QString name)
     //    QTimer::singleShot(1000,this,[=]{
     isexist = ISysWin::IsExistProcess(name.toStdString().c_str());
     //    });
+#else
+    isexist = ISysLinux::IsExistProcess(name.toStdString().c_str());
 #endif
     return isexist;
 }

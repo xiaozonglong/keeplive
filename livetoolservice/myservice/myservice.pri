@@ -6,6 +6,7 @@ include($$PWD/../qt-solutions/qtlockedfile/src/qtlockedfile.pri)
 DEFINES += _UNICODE
 DEFINES += MACRO_MYSERVICR
 include($$PWD/plugins/plugins.pri)
+
 SOURCES += \
     $$PWD/keeplive.cpp \
     $$PWD/myservice.cpp
@@ -18,6 +19,10 @@ HEADERS  += \
 
 LIBS += \
     -L$$DESTDIR \
-    -lWtsApi32 \
-    -lAdvApi32 \
-    -lUserEnv
+
+win32{
+    LIBS += \
+        -lWtsApi32 \
+        -lAdvApi32 \
+        -lUserEnv
+}
