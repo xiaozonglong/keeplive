@@ -9,6 +9,7 @@ public:
     static QString ConfigFile;          //配置文件文件路径及名称
     static QString TargetAppName;       //目标软件程序名称
     static QString SuffixAppName;       //目标软件程序后缀名称
+    static QString OperateParameter;       //目标软件程序运行参数
     static quint16 TargetAppPort;           //目标软件通信端口
     static bool ReStartExplorer;        //是否需要重启桌面
     static int TimeoutCount;            //超时次数

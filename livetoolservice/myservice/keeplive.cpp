@@ -177,6 +177,7 @@ QByteArray KeepLive::send_heart()
             kvs.insert("TargetAppPort",App::TargetAppPort);
             kvs.insert("TargetAppName",App::TargetAppName);
             kvs.insert("SuffixAppName",App::SuffixAppName);
+            kvs.insert("OperateParameter",App::OperateParameter);
             kvs.insert("ConfigFile",App::ConfigFile);
 
             kvs.insert("TimeoutCount",App::TimeoutCount);
@@ -489,11 +490,18 @@ void KeepLive::startApp()
 
     if(QFile::exists (appname))
     {
+        QStringList arguments;
+
+        if(!App::OperateParameter.isEmpty())
+        {
+            arguments<<App::OperateParameter;
+        }
+
         QString appname1 = QString("\"%1\"").arg(appname);
         if(/* DISABLES CODE */ (0)){
             runCommand(appname1);
         }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
-            auto ret = QProcess::startDetached(appname1);
+            auto ret = QProcess::startDetached(appname1,arguments);
             qDebug()<<"QProcess::startDetached "<<appname<<ret;
         }else//启动带UI
         {
@@ -503,7 +511,7 @@ void KeepLive::startApp()
                 qWarning() <<appname<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
             }
 #else
-            auto ret = QProcess::startDetached(appname1);
+            auto ret = QProcess::startDetached(appname1,arguments);
             qDebug()<<"QProcess::startDetached "<<appname<<ret;
 #endif
         }
