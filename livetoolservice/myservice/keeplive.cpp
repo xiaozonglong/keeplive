@@ -440,7 +440,7 @@ void KeepLive::killApp()
         {
 #ifdef Q_OS_LINUX
             ISysLinux::killAll(appname);
-#else
+#elif defined (Q_OS_WIN)
             QString cmd = QString("taskkill /im %1 /f").arg(appname);
             runCommand(cmd);
 #endif
