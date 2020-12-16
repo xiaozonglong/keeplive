@@ -6,15 +6,13 @@
 #include <QNetworkDatagram>
 #include <QDir>
 #include "process_loader.h"
+
 #ifdef Q_OS_LINUX
 #include "isyslinux.h"
 #else
 #include "ISysWin.h"
-<<<<<<< HEAD
 #endif
 
-=======
->>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
 QFileInfoList KeepLive::scanFolderFile(QString path)
 {
     //====需要查找的路径
@@ -46,19 +44,11 @@ QStringList KeepLive::scanFolder(QString path,QString filter)
         }else
         {
             QString fileName = info.fileName();
-<<<<<<< HEAD
+
 
             fileList<<fileName;
         }
 
-
-=======
-
-            fileList<<fileName;
-        }
-
-
->>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
     }
     return fileList;
 }
@@ -66,11 +56,7 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 {
     initVar();
 
-<<<<<<< HEAD
     if(0)initLock();
-=======
-    initLock();
->>>>>>> 488f1b333d07ce6cdc590adb5790916efcb465b0
     initService();
     startApp();
 }

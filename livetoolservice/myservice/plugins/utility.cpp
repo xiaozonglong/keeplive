@@ -231,7 +231,7 @@ void FileUtils::openCatalog(QString path)
     //    QDesktopServices::openUrl(QUrl::fromLocalFile("http://www.baidu.com"));
     QProcess::execute("nautilus",QStringList(path));
 #elif defined Q_OS_WIN
-    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+
 #else
 
 #endif
