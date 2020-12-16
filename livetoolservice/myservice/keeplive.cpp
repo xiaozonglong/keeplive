@@ -496,7 +496,8 @@ void KeepLive::startApp()
 
         if(!App::OperateParameter.isEmpty())
         {
-            arguments<<App::OperateParameter;
+
+            arguments = App::OperateParameter.split(' ');
         }
 
         QString appname1 = QString("\"%1\"").arg(appname);
@@ -504,7 +505,7 @@ void KeepLive::startApp()
             runCommand(appname1);
         }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
             auto ret = QProcess::startDetached(appname1,arguments);
-            qDebug()<<"QProcess::startDetached "<<appname<<ret;
+            qDebug()<<"QProcess::startDetached "<<appname1<<arguments<<ret;
         }else//启动带UI
         {
 #ifdef Q_OS_WIN
