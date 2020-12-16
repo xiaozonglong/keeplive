@@ -55,8 +55,9 @@ QStringList KeepLive::scanFolder(QString path,QString filter)
 KeepLive::KeepLive(QObject *parent):QObject(parent)
 {
     initVar();
-
+#ifdef MACRO_LOCKFILE
     if(/* DISABLES CODE */ (0))initLock();
+#endif
     initService();
     startApp();
 }
@@ -128,6 +129,7 @@ void KeepLive::initVar()
            ;
 
 }
+#ifdef MACRO_LOCKFILE
 /*
  * APP锁功能，会在本地生产.lock文件
 */
@@ -160,7 +162,7 @@ void KeepLive::initLock()
     }
 
 }
-
+#endif
 QByteArray KeepLive::send_heart()
 {
     QByteArray retstr;

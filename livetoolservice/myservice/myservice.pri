@@ -2,7 +2,11 @@
 QT += network
 include($$PWD/../qt-solutions/qtservice/src/qtservice.pri)
 include($$PWD/../qt-solutions/qtsingleapplication/src/qtsinglecoreapplication.pri)
-include($$PWD/../qt-solutions/qtlockedfile/src/qtlockedfile.pri)
+#DEFINES += MACRO_LOCKFILE
+contains(DEFINES,MACRO_LOCKFILE) {
+  include($$PWD/../qt-solutions/qtlockedfile/src/qtlockedfile.pri)
+}
+
 DEFINES += _UNICODE
 DEFINES += MACRO_MYSERVICR
 include($$PWD/plugins/plugins.pri)

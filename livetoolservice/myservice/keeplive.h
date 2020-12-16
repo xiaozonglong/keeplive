@@ -8,7 +8,9 @@
 #include <QProcess>
 #include <QDateTime>
 #include <QCoreApplication>
+#ifdef MACRO_LOCKFILE
 #include <QLockFile>
+#endif
 #include <QFileInfoList>
 class KeepLive:public QObject
 {
@@ -18,7 +20,9 @@ public:
     KeepLive(QObject *parent = nullptr);
     ~KeepLive();
     void initVar();
+    #ifdef MACRO_LOCKFILE
     void initLock();
+#endif
     void initService();
 
     QTimer *_timerHeart = nullptr;     //心跳定时器
