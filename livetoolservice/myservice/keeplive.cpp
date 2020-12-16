@@ -56,7 +56,7 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 {
     initVar();
 
-    if(0)initLock();
+    if(/* DISABLES CODE */ (0))initLock();
     initService();
     startApp();
 }
@@ -98,12 +98,13 @@ void KeepLive::initVar()
     App::UIEnable = true;
     App::DestoryApp = true;
     App::ExitDestoryApp = true;
+    App::SuffixAppName = "exe";
     App::readConfig();
 
     //默认扫描当前目录下的守护exe
     if(App::TargetAppName.isEmpty())
     {
-        QStringList flist = scanFolder("./","exe");
+        QStringList flist = scanFolder("./",App::SuffixAppName);
         {
             foreach (auto appfile, flist) {
                 if(appfile == applicationName)continue;
@@ -120,7 +121,7 @@ void KeepLive::initVar()
 
     qDebug()<<QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")<<endl<<"-------------------------------服务启动中------------------------------------------"<<endl
            <<"ServiceName()-->"<<applicationName<<endl
-          <<"LiveProcessName()-->"<<App::TargetAppName<<endl
+          <<"LiveProcessName()-->"<<App::TargetAppName<<App::SuffixAppName<<endl
          <<"applicationDirPath()-->"<<applicationDirPath<<endl
            ;
 
@@ -425,13 +426,21 @@ void KeepLive::killApp()
     bool DestoryApp = App::DestoryApp;
     if(DestoryApp == true)
     {
-        QString tappname = App::TargetAppName + ".exe";
-        if(isExistProcess(tappname))
+        QString appname;
+        if(App::SuffixAppName.isEmpty())
+        {
+            appname = QString("%1").arg(App::TargetAppName);
+        }else
+        {
+            appname = QString("%1.%2").arg(App::TargetAppName).arg(App::SuffixAppName);
+        }
+
+        if(isExistProcess(appname))
         {
 #ifdef Q_OS_LINUX
-            ISysLinux::killAll(tappname);
+            ISysLinux::killAll(appname);
 #else
-            QString cmd = QString("taskkill /im %1 /f").arg(tappname);
+            QString cmd = QString("taskkill /im %1 /f").arg(appname);
             runCommand(cmd);
 #endif
         }
@@ -440,8 +449,10 @@ void KeepLive::killApp()
 
 void KeepLive::killOther()
 {
+#ifdef Q_OS_LINUX
+#else
     {
-        QString tappname = QString("WerFault")+ ".exe";
+        QString tappname = QString("WerFault")+ "."+App::SuffixAppName;
         if(isExistProcess(tappname))
         {
             QString cmd = QString("taskkill /im %1 /f").arg(tappname);
@@ -450,24 +461,30 @@ void KeepLive::killOther()
     }
 
 
-
     //重建缓存,彻底清除托盘图标
     if (App::ReStartExplorer) {
-        QString tappname = QString("explorer")+ ".exe";
+        QString tappname = QString("explorer")+ "."+App::SuffixAppName;
         if(isExistProcess(tappname))
         {
             QString cmd = QString("taskkill /f /im %1").arg(tappname);
             runCommand(cmd);
         }
     }
+#endif
 }
 
 void KeepLive::startApp()
 {
 
     bool uienable = App::UIEnable;
-    QString appname = QString("%1/%2.exe").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
-
+    QString appname;
+    if(App::SuffixAppName.isEmpty())
+    {
+        appname = QString("%1/%2").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
+    }else
+    {
+        appname = QString("%1/%2.%3").arg(qApp->applicationDirPath()).arg(App::TargetAppName).arg(App::SuffixAppName);
+    }
 
     if(QFile::exists (appname))
     {
@@ -480,7 +497,6 @@ void KeepLive::startApp()
         }else//启动带UI
         {
 #ifdef Q_OS_WIN
-            //    std::wstring command = L"notepad.exe";
             std::wstring command = appname1.toStdWString();
             if (ProcessLoader::loadWindowsApplication(command) == false) {
                 qWarning() <<appname<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";

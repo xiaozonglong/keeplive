@@ -7,6 +7,7 @@
 
 QString App::ConfigFile ="";
 QString App::TargetAppName = "";
+QString App::SuffixAppName = "";
 quint16 App::TargetAppPort = 0;
 bool App::ReStartExplorer = false;
 int App::TimeoutCount = 7;
@@ -25,6 +26,7 @@ void App::readConfig()
     QSettings set(App::ConfigFile, QSettings::IniFormat);
     set.beginGroup("BaseConfig");
     App::TargetAppName = set.value("TargetAppName", App::TargetAppName).toString();
+    App::SuffixAppName = set.value("SuffixAppName", App::SuffixAppName).toString();
     App::TargetAppPort = set.value("TargetAppPort", App::TargetAppPort).toInt();
     App::ReStartExplorer = set.value("ReStartExplorer", App::ReStartExplorer).toBool();
     App::TimeoutCount = set.value("TimeoutCount", App::TimeoutCount).toInt();
@@ -42,6 +44,7 @@ void App::writeConfig()
     QSettings set(App::ConfigFile, QSettings::IniFormat);
     set.beginGroup("BaseConfig");
     set.setValue("TargetAppName", App::TargetAppName);
+    set.setValue("SuffixAppName", App::SuffixAppName);
     set.setValue("TargetAppPort", App::TargetAppPort);
     set.setValue("ReStartExplorer", App::ReStartExplorer);
     set.setValue("TimeoutCount", App::TimeoutCount);
