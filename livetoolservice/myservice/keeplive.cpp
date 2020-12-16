@@ -99,6 +99,8 @@ void KeepLive::initVar()
     App::DestoryApp = true;
     App::ExitDestoryApp = true;
     App::SuffixAppName = "exe";
+    App::TargetAppName = "";
+    App::OperateParameter = "";
     App::readConfig();
 
     //默认扫描当前目录下的守护exe
