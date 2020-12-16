@@ -69,31 +69,31 @@ bool App::checkConfig()
         return false;
     }
 
-    //如果配置文件不完整,则以初始值继续运行,并生成配置文件
-    if (file.open(QFile::ReadOnly)) {
-        bool ok = true;
-        while (!file.atEnd()) {
-            QString line = file.readLine();
-            line = line.replace("\r", "");
-            line = line.replace("\n", "");
-            QStringList list = line.split("=");
+//    //如果配置文件不完整,则以初始值继续运行,并生成配置文件
+//    if (file.open(QFile::ReadOnly)) {
+//        bool ok = true;
+//        while (!file.atEnd()) {
+//            QString line = file.readLine();
+//            line = line.replace("\r", "");
+//            line = line.replace("\n", "");
+//            QStringList list = line.split("=");
 
-            if (list.count() == 2) {
-                if (list.at(1) == "") {
-                    ok = false;
-                    break;
-                }
-            }
-        }
+//            if (list.count() == 2) {
+//                if (list.at(1) == "") {
+//                    ok = false;
+//                    break;
+//                }
+//            }
+//        }
 
-        if (!ok) {
-            writeConfig();
-            return false;
-        }
-    } else {
-        writeConfig();
-        return false;
-    }
+//        if (!ok) {
+//            writeConfig();
+//            return false;
+//        }
+//    } else {
+//        writeConfig();
+//        return false;
+//    }
 
     return true;
 }
