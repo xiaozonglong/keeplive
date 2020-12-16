@@ -27,6 +27,8 @@ public:
     QMap<int,QString> GetAllProcess() ;
 
     static BOOL IsExistProcess(const char*  szProcessName);
+
+    static QList<int> GetProcessIDs(char *FileName);
 protected:
     //时间转换
     __int64 Filetime2Int64(const FILETIME* ftime);

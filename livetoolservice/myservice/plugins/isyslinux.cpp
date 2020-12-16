@@ -1,4 +1,4 @@
-#include "isyslinux.h"
+﻿#include "isyslinux.h"
 #include "utility.h"
 ISysLinux::ISysLinux()
 {
@@ -45,7 +45,7 @@ bool ISysLinux::killAll(QString szProcessName)
         QString context ;
 
 
-        context =    utility::process("pkill",args);
+        context =    utility::process("killall",args);
 
 
 

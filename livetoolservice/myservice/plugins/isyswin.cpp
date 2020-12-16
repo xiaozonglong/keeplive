@@ -226,4 +226,26 @@ BOOL ISysWin::IsExistProcess(const char*  szProcessName)
     //
     return FALSE;
 }
+QList<int> ISysWin::GetProcessIDs(char *FileName)
+{
+    QList<int> pids;
+    HANDLE myhProcess;
+    PROCESSENTRY32 mype;
+    mype.dwSize = sizeof(PROCESSENTRY32);
+    BOOL mybRet;
+    //进行进程快照
+    myhProcess=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0); //TH32CS_SNAPPROCESS快照所有进程
+    //开始进程查找
+    mybRet=Process32First(myhProcess,&mype);
+    //循环比较，得出ProcessID
+    while(mybRet)
+    {
+        QString temp=QString::fromWCharArray(mype.szExeFile);
+        if(strcmp(FileName,temp.toLocal8Bit())==0)
+            pids.append(mype.th32ProcessID);
+        mybRet=Process32Next(myhProcess,&mype);
+    }
+    return pids;
+}
+
 
