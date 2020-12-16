@@ -515,7 +515,7 @@ void KeepLive::startApp()
             }
 #else
             auto ret = QProcess::startDetached(appname1,arguments);
-            qDebug()<<"QProcess::startDetached "<<appname<<ret;
+            qDebug()<<"QProcess::startDetached "<<appname1<<arguments<<ret;
 #endif
         }
         App::ReStartCount++;
