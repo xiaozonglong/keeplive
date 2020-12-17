@@ -40,6 +40,9 @@ private:
     static bool isExistProcess(QString name);
     static QStringList scanFolder(QString path, QString filter);
     static QFileInfoList scanFolderFile(QString path);
+    bool _isExistProcess();
+
+    void _killProcess();
 Q_SIGNALS:
     void serviceCmd(QString cmd,bool enable);
 private slots:

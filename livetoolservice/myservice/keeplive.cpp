@@ -432,23 +432,10 @@ void KeepLive::killApp()
     bool DestoryApp = App::DestoryApp;
     if(DestoryApp == true)
     {
-        QString appname;
-        if(App::SuffixAppName.isEmpty())
-        {
-            appname = QString("%1").arg(App::TargetAppName);
-        }else
-        {
-            appname = QString("%1.%2").arg(App::TargetAppName).arg(App::SuffixAppName);
-        }
 
-        if(isExistProcess(appname))
+        if(_isExistProcess())
         {
-#ifdef Q_OS_LINUX
-            ISysLinux::killAll(appname);
-#elif defined (Q_OS_WIN)
-            QString cmd = QString("taskkill /im %1 /f").arg(appname);
-            runCommand(cmd);
-#endif
+            _killProcess();
         }
     }
 }
@@ -478,21 +465,59 @@ void KeepLive::killOther()
     }
 #endif
 }
+void KeepLive::_killProcess()
+{
+    QString appname;
+    if(App::SuffixAppName.isEmpty())
+    {
+        appname = QString("%1").arg(App::TargetAppName);
+    }else
+    {
+        appname = QString("%1.%2").arg(App::TargetAppName).arg(App::SuffixAppName);
+    }
+#ifdef Q_OS_LINUX
+    ISysLinux::killAll(appname);
+#elif defined (Q_OS_WIN)
+    QString cmd = QString("taskkill /im %1 /f").arg(appname);
+    runCommand(cmd);
+#endif
+
+}
+bool KeepLive::_isExistProcess()
+{
+    QString appname;
+    if(App::SuffixAppName.isEmpty())
+    {
+        appname = QString("%1").arg(App::TargetAppName);
+    }else
+    {
+        appname = QString("%1.%2").arg(App::TargetAppName).arg(App::SuffixAppName);
+    }
+    return isExistProcess(appname);
+
+}
 
 void KeepLive::startApp()
 {
 
-    bool uienable = App::UIEnable;
-    QString appname;
-    if(App::SuffixAppName.isEmpty())
+    if(_isExistProcess())
     {
-        appname = QString("%1/%2").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
-    }else
-    {
-        appname = QString("%1/%2.%3").arg(qApp->applicationDirPath()).arg(App::TargetAppName).arg(App::SuffixAppName);
+        qDebug()<<"ExistProcess";
+        return;
     }
 
-    if(QFile::exists (appname))
+    bool uienable = App::UIEnable;
+    QString apppath;
+    if(App::SuffixAppName.isEmpty())
+    {
+        apppath = QString("%1/%2").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
+    }else
+    {
+        apppath = QString("%1/%2.%3").arg(qApp->applicationDirPath()).arg(App::TargetAppName).arg(App::SuffixAppName);
+    }
+
+
+    if(QFile::exists (apppath))
     {
         QStringList arguments;
 
@@ -502,7 +527,7 @@ void KeepLive::startApp()
             arguments = App::OperateParameter.split(' ');
         }
 
-        QString appname1 = QString("\"%1\"").arg(appname);
+        QString appname1 = QString("\"%1\"").arg(apppath);
         if(/* DISABLES CODE */ (0)){
             runCommand(appname1);
         }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
@@ -513,7 +538,7 @@ void KeepLive::startApp()
 #ifdef Q_OS_WIN
             std::wstring command = appname1.toStdWString();
             if (ProcessLoader::loadWindowsApplication(command) == false) {
-                qWarning() <<appname<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
+                qWarning() <<apppath<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
             }
 #else
             auto ret = QProcess::startDetached(appname,arguments);
@@ -524,7 +549,7 @@ void KeepLive::startApp()
         App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
         App::writeConfig();
     }else{
-        qWarning() <<appname<<"不存在 Failed to launch ";
+        qWarning() <<apppath<<"不存在 Failed to launch ";
     }
 
     count = 0;
