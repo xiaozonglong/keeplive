@@ -77,15 +77,7 @@ namespace IpUtils {
     bool checkmask(QString mask);
     bool isSameNetwork(QString ip, QString mask, QString gateway);
 }
-//针对是MC公司的板子
-namespace GPIOUtils {
-    QString wpa_cli_scan(QString card);
-    QString wpa_cli_scan_result(QString card);
-    QString wpa_passphrase(QString apppath, QString account, QString passwd);
-    bool isExist(QString iofile);
-    void userLedTrun(QString gpiostr,bool sw);
-    void watchdogTrun(int time = 30);
-}
+
 
 namespace ModbusUtils {
 QString translate_mac_port_str(QString mac, uint port);
