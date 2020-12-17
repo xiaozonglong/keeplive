@@ -541,8 +541,8 @@ void KeepLive::startApp()
                 qWarning() <<apppath<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
             }
 #else
-            auto ret = QProcess::startDetached(appname,arguments);
-            qDebug()<<"QProcess::startDetached "<<appname<<arguments<<ret;
+            auto ret = QProcess::startDetached(apppath,arguments);
+            qDebug()<<"QProcess::startDetached "<<apppath<<arguments<<ret;
 #endif
         }
         App::ReStartCount++;
