@@ -503,54 +503,56 @@ void KeepLive::startApp()
     if(_isExistProcess())
     {
         qDebug()<<"ExistProcess";
-        return;
-    }
-
-    bool uienable = App::UIEnable;
-    QString apppath;
-    if(App::SuffixAppName.isEmpty())
-    {
-        apppath = QString("%1/%2").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
     }else
     {
-        apppath = QString("%1/%2.%3").arg(qApp->applicationDirPath()).arg(App::TargetAppName).arg(App::SuffixAppName);
-    }
-
-
-    if(QFile::exists (apppath))
-    {
-        QStringList arguments;
-
-        if(!App::OperateParameter.isEmpty())
+        bool uienable = App::UIEnable;
+        QString apppath;
+        if(App::SuffixAppName.isEmpty())
         {
-
-            arguments = App::OperateParameter.split(' ');
+            apppath = QString("%1/%2").arg(qApp->applicationDirPath()).arg(App::TargetAppName);
+        }else
+        {
+            apppath = QString("%1/%2.%3").arg(qApp->applicationDirPath()).arg(App::TargetAppName).arg(App::SuffixAppName);
         }
 
-        QString appname1 = QString("\"%1\"").arg(apppath);
-        if(/* DISABLES CODE */ (0)){
-            runCommand(appname1);
-        }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
-            auto ret = QProcess::startDetached(appname1,arguments);
-            qDebug()<<"QProcess::startDetached "<<appname1<<arguments<<ret;
-        }else//启动带UI
+
+        if(QFile::exists (apppath))
         {
-#ifdef Q_OS_WIN
-            std::wstring command = appname1.toStdWString();
-            if (ProcessLoader::loadWindowsApplication(command) == false) {
-                qWarning() <<apppath<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
+            QStringList arguments;
+
+            if(!App::OperateParameter.isEmpty())
+            {
+
+                arguments = App::OperateParameter.split(' ');
             }
+
+            QString appname1 = QString("\"%1\"").arg(apppath);
+            if(/* DISABLES CODE */ (0)){
+                runCommand(appname1);
+            }else if(/* DISABLES CODE */ (!uienable)){//启动不带UI
+                auto ret = QProcess::startDetached(appname1,arguments);
+                qDebug()<<"QProcess::startDetached "<<appname1<<arguments<<ret;
+            }else//启动带UI
+            {
+#ifdef Q_OS_WIN
+                std::wstring command = appname1.toStdWString();
+                if (ProcessLoader::loadWindowsApplication(command) == false) {
+                    qWarning() <<apppath<< "Failed to launch " << command.c_str()<<"1.请在“管理服务”中启动程序；2检查指定程序不能设置为管理员权限！";
+                }
 #else
-            auto ret = QProcess::startDetached(apppath,arguments);
-            qDebug()<<"QProcess::startDetached "<<apppath<<arguments<<ret;
+                auto ret = QProcess::startDetached(apppath,arguments);
+                qDebug()<<"QProcess::startDetached "<<apppath<<arguments<<ret;
 #endif
+            }
+            App::ReStartCount++;
+            App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            App::writeConfig();
+        }else{
+            qWarning() <<apppath<<"不存在 Failed to launch ";
         }
-        App::ReStartCount++;
-        App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-        App::writeConfig();
-    }else{
-        qWarning() <<apppath<<"不存在 Failed to launch ";
+
     }
+
 
     count = 0;
     ok = true;
