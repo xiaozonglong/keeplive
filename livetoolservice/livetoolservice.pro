@@ -44,4 +44,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 include($$PWD/myservice/myservice.pri)
+include($$PWD/pre_platform.pri)
 

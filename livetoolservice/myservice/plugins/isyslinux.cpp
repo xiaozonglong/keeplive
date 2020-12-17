@@ -10,8 +10,12 @@ bool ISysLinux::IsExistProcess(const char*  szProcessName)
     bool ret = false;
 
     QStringList args;
+#ifdef MACRO_linux_arm
 
-        args<<QString("-auxhr");
+#else
+    args<<QString("-auxhr");
+#endif
+
 //        args<<QString("| grep %1").arg(szProcessName);
 
 //        args<<QString(szProcessName);
