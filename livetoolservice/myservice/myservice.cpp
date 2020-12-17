@@ -18,8 +18,6 @@ MyService::MyService(int argc, char **argv)
     setServiceDescription(QString("龙创公司App %1保证应用长期运行").arg(serviceName()));
     setStartupType(QtServiceController::StartupType::AutoStartup);
     setServiceFlags(QtServiceBase::CanBeSuspended);
-
-
 }
 
 MyService::~MyService()
