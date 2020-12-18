@@ -175,7 +175,7 @@ QByteArray KeepLive::send_heart()
         {
 
             QVariantMap kvs;
-            kvs.insert("object","keeplive");
+            kvs.insert("object",this->metaObject()->className());
             kvs.insert("value",_keeplive);
             kvs.insert("DateTime",QDateTime::currentDateTime());
             kvs.insert("TargetAppPort",App::TargetAppPort);
@@ -191,7 +191,8 @@ QByteArray KeepLive::send_heart()
             kvs.insert("UIEnable",App::UIEnable);
             kvs.insert("DestoryApp",App::DestoryApp);
             kvs.insert("TimerHeartInterval",App::TimerHeartInterval);
-            kvs.insert("applicationDirPath",qApp->applicationDirPath());
+            kvs.insert("AppDirPath",qApp->applicationDirPath());
+            kvs.insert("AppPid",qApp->applicationPid());
 
 
             kvs.insert("count",count);
