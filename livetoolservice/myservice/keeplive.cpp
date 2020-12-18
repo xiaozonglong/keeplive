@@ -92,8 +92,12 @@ void KeepLive::initVar()
     App::ConfigFile = applicationDirPath + "/"+applicationName+"_config.ini";
     App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     App::TargetAppPort = 60001;
-    App::AppStartupTime = 7;
-    App::TimeoutCount = 10000;
+#ifdef MACRO_linux_arm
+    App::AppStartupTime = 60000;
+#else
+    App::AppStartupTime = 6000;
+#endif
+    App::TimeoutCount = 7;
     App::ReStartExplorer = false;
     App::ReStartCount = 0;
     App::TimerHeartInterval = 5000;
