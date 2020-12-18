@@ -181,6 +181,7 @@ QByteArray KeepLive::send_heart()
             kvs.insert("DateTime",QDateTime::currentDateTime());
             kvs.insert("TargetAppPort",App::TargetAppPort);
             kvs.insert("TargetAppName",App::TargetAppName);
+            kvs.insert("AppStartupTime",App::AppStartupTime);
             kvs.insert("SuffixAppName",App::SuffixAppName);
             kvs.insert("OperateParameter",App::OperateParameter);
             kvs.insert("ConfigFile",App::ConfigFile);
