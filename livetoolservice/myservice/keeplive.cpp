@@ -92,7 +92,8 @@ void KeepLive::initVar()
     App::ConfigFile = applicationDirPath + "/"+applicationName+"_config.ini";
     App::ReStartLastTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     App::TargetAppPort = 60001;
-    App::TimeoutCount = 7;
+    App::AppStartupTime = 7;
+    App::TimeoutCount = 10000;
     App::ReStartExplorer = false;
     App::ReStartCount = 0;
     App::TimerHeartInterval = 5000;
@@ -395,13 +396,7 @@ void KeepLive::initService()
         });
     }
 
-    if (App::TargetAppName.isEmpty()) {
 
-        _timerHeart->stop();
-    } else {
-
-        _timerHeart->start();
-    }
 
 }
 
@@ -498,9 +493,21 @@ bool KeepLive::_isExistProcess()
 
 }
 
+void KeepLive::beginTimeOutTimer()
+{
+    QTimer::singleShot(App::TimeoutCount,this,[=](){
+        if (App::TargetAppName.isEmpty()) {
+
+            _timerHeart->stop();
+        } else {
+
+            _timerHeart->start();
+        }
+    });
+}
+
 void KeepLive::startApp()
 {
-
     if(_isExistProcess())
     {
         qDebug()<<"ExistProcess";
@@ -557,7 +564,8 @@ void KeepLive::startApp()
 
     count = 0;
     ok = true;
-    _timerHeart->start();
+
+    beginTimeOutTimer();
 }
 
 bool KeepLive::isExistProcess(QString name)

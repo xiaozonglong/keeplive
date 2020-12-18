@@ -43,6 +43,8 @@ private:
     bool _isExistProcess();
 
     void _killProcess();
+    void beginTimeOutTimer();
+    
 Q_SIGNALS:
     void serviceCmd(QString cmd,bool enable);
 private slots:

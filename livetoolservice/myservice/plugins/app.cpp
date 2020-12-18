@@ -12,6 +12,7 @@ QString App::OperateParameter = "";
 quint16 App::TargetAppPort = 0;
 bool App::ReStartExplorer = false;
 int App::TimeoutCount = 7;
+int App::AppStartupTime = 1000;
 int App::ReStartCount = 0;
 int App::TimerHeartInterval = 5000;
 QString App::ReStartLastTime = "";
@@ -32,6 +33,7 @@ void App::readConfig()
     App::TargetAppPort = set.value("TargetAppPort", App::TargetAppPort).toInt();
     App::ReStartExplorer = set.value("ReStartExplorer", App::ReStartExplorer).toBool();
     App::TimeoutCount = set.value("TimeoutCount", App::TimeoutCount).toInt();
+    App::AppStartupTime = set.value("AppStartupTime", App::AppStartupTime).toInt();
     App::TimerHeartInterval = set.value("TimerHeartInterval", App::TimerHeartInterval).toInt();
     App::ReStartCount = set.value("ReStartCount", App::ReStartCount).toInt();
     App::ReStartLastTime = set.value("ReStartLastTime", App::ReStartLastTime).toString();
@@ -51,6 +53,7 @@ void App::writeConfig()
     set.setValue("TargetAppPort", App::TargetAppPort);
     set.setValue("ReStartExplorer", App::ReStartExplorer);
     set.setValue("TimeoutCount", App::TimeoutCount);
+    set.setValue("AppStartupTime", App::AppStartupTime);
     set.setValue("TimerHeartInterval", App::TimerHeartInterval);
     set.setValue("ReStartCount", App::ReStartCount);
     set.setValue("ReStartLastTime", App::ReStartLastTime);

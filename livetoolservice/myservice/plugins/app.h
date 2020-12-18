@@ -12,6 +12,7 @@ public:
     static QString OperateParameter;       //目标软件程序运行参数
     static quint16 TargetAppPort;           //目标软件通信端口
     static bool ReStartExplorer;        //是否需要重启桌面
+    static int AppStartupTime;            //APP启动时间
     static int TimeoutCount;            //超时次数
     static int TimerHeartInterval;
     static int ReStartCount;            //已重启次数
