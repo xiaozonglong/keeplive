@@ -31,5 +31,11 @@ int main(int argc, char *argv[])
 #endif
 //    Live b;
     MyService a( argc, argv );
-    return a.exec();
+    auto reterr = a.exec();
+
+    if(reterr == -4)
+    {
+        qDebug()<<"Err::Allow one instance only";
+    }
+    return reterr;
 }
