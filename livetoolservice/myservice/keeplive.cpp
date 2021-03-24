@@ -60,6 +60,11 @@ KeepLive::KeepLive(QObject *parent):QObject(parent)
 #endif
     initService();
     startApp();
+
+    QString debugfile = QCoreApplication::applicationName()+"_debuglog.txt";
+    QFile::remove( debugfile );
+//    qDebug()<<"remov old debugfile  "<<debugfile;
+
 }
 
 KeepLive::~KeepLive()
