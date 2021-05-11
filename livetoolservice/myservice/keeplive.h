@@ -33,7 +33,7 @@ public:
     void pause();
     void resume();
 private:
-    qulonglong _packetID = 0; //当前发送包ID
+    qlonglong _packetID = 0; //当前发送包ID
     bool _keeplive = true;
     QByteArray send_heart();
     QByteArray send_cmdResponse(QVariantMap recvmap);
