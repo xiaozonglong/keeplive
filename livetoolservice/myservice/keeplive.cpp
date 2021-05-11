@@ -178,7 +178,7 @@ QByteArray KeepLive::send_heart()
     QByteArray retstr;
     if(_packetID == 0)
     {
-        _packetID = QDateTime::currentDateTime().toTime_t();
+        _packetID = QDateTime::currentDateTime().toSecsSinceEpoch();
     }
     QVariantMap mainkvs;
     {

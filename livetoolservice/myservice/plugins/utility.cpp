@@ -225,7 +225,7 @@ QVariant RegExpUtils::_find_attrKey(QVariantMap attribute,QString kkey)
 void FileUtils::openCatalog(QString path)
 {
 #ifdef Q_OS_ANDROID
-    QString application_path = QApplication::applicationFilePath();
+//    QString application_path = QApplication::applicationFilePath();
     //    messageDlg(this,application_path);
 #elif defined Q_OS_LINUX
     //    QDesktopServices::openUrl(QUrl::fromLocalFile("http://www.baidu.com"));

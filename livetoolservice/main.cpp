@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
 {
 //    QCoreApplication a(argc, argv);
 
+
     setCodeFormat ();
 
 #ifdef MACRO_NLoger
@@ -29,6 +30,8 @@ int main(int argc, char *argv[])
 #endif
 
 #endif
+
+
 //    Live b;
     MyService a( argc, argv );
     auto reterr = a.exec();
