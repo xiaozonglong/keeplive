@@ -45,6 +45,8 @@ private:
     void _killProcess();
     void beginTimeOutTimer();
     
+    QString appNamePath();
+    
 Q_SIGNALS:
     void serviceCmd(QString cmd,bool enable);
 private slots:

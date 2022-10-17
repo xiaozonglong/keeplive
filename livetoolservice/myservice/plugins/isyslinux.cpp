@@ -27,8 +27,10 @@ bool ISysLinux::IsExistProcess(const char*  szProcessName)
         context =    utility::process("ps",args);
 
 
+        QString regstr = QString(".*/%1 .*").arg(szProcessName);
+         QRegExp regexp(regstr);
 
-        if(context.contains(szProcessName))
+        if(context.contains(regexp))
         {
             ret = true;
         }

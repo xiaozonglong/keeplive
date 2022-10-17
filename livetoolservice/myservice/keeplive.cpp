@@ -178,7 +178,7 @@ QByteArray KeepLive::send_heart()
     QByteArray retstr;
     if(_packetID == 0)
     {
-        _packetID = QDateTime::currentDateTime().toSecsSinceEpoch();
+        _packetID = QDateTime::currentDateTime().toMSecsSinceEpoch();
     }
     QVariantMap mainkvs;
     {
@@ -489,7 +489,8 @@ void KeepLive::_killProcess()
 #endif
 
 }
-bool KeepLive::_isExistProcess()
+
+QString KeepLive::appNamePath()
 {
     QString appname;
     if(App::SuffixAppName.isEmpty())
@@ -499,6 +500,12 @@ bool KeepLive::_isExistProcess()
     {
         appname = QString("%1.%2").arg(App::TargetAppName).arg(App::SuffixAppName);
     }
+    return appname;
+}
+
+bool KeepLive::_isExistProcess()
+{
+    auto appname = appNamePath();
     return isExistProcess(appname);
 
 }
@@ -520,7 +527,7 @@ void KeepLive::startApp()
 {
     if(_isExistProcess())
     {
-        qDebug()<<"ExistProcess";
+        qDebug()<<"ExistProcess"<<appNamePath();
     }else
     {
         bool uienable = App::UIEnable;
