@@ -176,9 +176,11 @@ void KeepLive::initLock()
 QByteArray KeepLive::send_heart()
 {
     QByteArray retstr;
-    if(_packetID == 0)
+    if(_packetID.isEmpty())
     {
-        _packetID = QDateTime::currentDateTime().toMSecsSinceEpoch();
+        _packetID = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+//        qDebug()<<"_packetID"<<_packetID;
+//        _packetID = QDateTime::currentDateTime().toTime_t();
     }
     QVariantMap mainkvs;
     {
@@ -235,7 +237,7 @@ QByteArray KeepLive::send_cmdResponse(QVariantMap recvmap)
 {
     QByteArray retstr;
     {
-        auto packetID = recvmap.value("packetID").toUInt();
+        auto packetID = recvmap.value("packetID");
         auto object = recvmap.value("object").toString();
         auto payloadmap = recvmap.value("payload").toMap();
         if(object == "service_status" )
@@ -325,10 +327,10 @@ void KeepLive::initService()
             //如果超过规定次数没有收到心跳回复,则超时重启
             if (count >= App::TimeoutCount) {
                 _timerHeart->stop();
-                if(_packetID != 0)
+                if(!_packetID.isEmpty())
                 {
                     qWarning()<<"没有响应数据包 packetID="<<_packetID<<count<<App::TimeoutCount;
-                    _packetID = 0;
+                    _packetID.clear();
                 }
 
                 killApp();
@@ -375,11 +377,11 @@ void KeepLive::initService()
 
                     if(messagetype == "response")
                     {
-                        auto packetID = recvmap.value("packetID").toUInt();
+                        auto packetID = recvmap.value("packetID").toString();
 
                         if(packetID == _packetID)
                         {
-                            _packetID = 0;
+                            _packetID.clear();
                             count = 0;
                             ok = true;
                         }else
