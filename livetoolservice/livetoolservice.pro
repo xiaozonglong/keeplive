@@ -45,4 +45,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 include($$PWD/myservice/myservice.pri)
 include($$PWD/pre_platform.pri)
+include($$PWD/platform.pri)
 

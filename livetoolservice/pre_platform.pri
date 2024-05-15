@@ -80,25 +80,79 @@ else: PLATFORM = "unknown"
 message("PLATFORM="$$PLATFORM)
 
 #arm开发板
+contains(PLATFORM,linux-arm64){
+    CONFIG += linux_aarch64
+    linux_aarch64{
+
+      DEFINES += MACRO_linux_aarch4
+
+      CONFIG += HTNICE
+
+      HTNICE{
+
+              DEFINES += MACRO_HTNICE_GT765X
+              message("MACRO_HTNICE_GT765X")
+
+      }
+    }
+}
 contains(PLATFORM,linux-arm){
-    CONFIG += linux_arm
-#     DEFINES += QT_NO_SSL
-    linux_arm{
-        DEFINES += MACRO_linux_arm
-        CONFIG += MCAM335x
+    CONFIG += linux_armv5
+#    CONFIG += linux_armv7
+
+#
+     DEFINES += MACRO_linux_arm
+    linux_armv7{
+        DEFINES += MACRO_linux_armv7
+#        CONFIG += MCAM335x
+        CONFIG += GENERAL
+#        CONFIG += HTNICE
+#        CONFIG += HT-C22
         MCAM335x{
                 #此硬件参考MC-AM335x-IOT BOXV6
-#                DEFINES += MACRO_IOTV6
+                DEFINES += MACRO_IOTV6
+                message("MACRO_MCAM335x")
                 #此硬件参考MC-AM335x-B813
 #                DEFINES += MACRO_B813
                 #此硬件参考MC-AM335x-Lite V2.3
-                DEFINES += MACRO_Lite_2_3
+#                DEFINES += MACRO_Lite_2_3
 
-                DEFINES += MACRO_MCAM335x
-                message("MACRO_MCAM335x")
+#                DEFINES += MACRO_MCAM335x
+#                message("MACRO_MCAM335x")
                 #linux IIC字符设备
-                }
-            }
+        }
+        HTNICE{
+
+                DEFINES += MACRO_HTNICE_GT665X
+                message("MACRO_HTNICE_GT665X")
+                #linux IIC字符设备
+        }
+        HT-C22{
+
+                DEFINES += MACRO_HT-C22
+                message("MACRO_HT-C22")
+                #linux IIC字符设备
+        }
+        GENERAL{
+                DEFINES += MACRO_GENERAL
+                message("GENERAL Device")
+                #linux IIC字符设备
+        }
+      }
+      linux_armv5{
+
+        DEFINES += MACRO_linux_armv5
+#        CONFIG += MCAM335x
+        CONFIG += HTNICE
+
+        DEFINES += QT_NO_SSL
+        HTNICE{
+
+                DEFINES += MACRO_HTNICE_GT6502
+                message("MACRO_HTNICE_GT6502")
+
+        }
+      }
     }
 
 #linux_mips开发板
@@ -120,7 +174,7 @@ contains(PLATFORM,linux-x86_64){
     linux_x86_64{
         DEFINES += MACRO_linux_x86_64
         DEFINES += QT_NO_SSL
-        message("$$PLATFORM QT_NO_SSL-QT_NO_SSL--QT_NO_SSL----------------------")
+#        message("$$PLATFORM QT_NO_SSL-QT_NO_SSL--QT_NO_SSL----------------------")
     }
 }
 
@@ -129,7 +183,7 @@ contains(PLATFORM,linux-arm64){
     linux_arm64{
         DEFINES += MACRO_linux_arm64
         DEFINES += QT_NO_SSL
-        message("$$PLATFORM QT_NO_SSL-QT_NO_SSL--QT_NO_SSL----------------------")
+#        message("$$PLATFORM QT_NO_SSL-QT_NO_SSL--QT_NO_SSL----------------------")
     }
 }
 #windows
